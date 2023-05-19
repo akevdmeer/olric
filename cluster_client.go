@@ -543,7 +543,6 @@ func (cl *ClusterClient) RoutingTable(ctx context.Context) (RoutingTable, error)
 	result, err := cmd.Slice()
 	if err != nil {
 		return RoutingTable{}, processProtocolError(err)
-
 	}
 	return mapToRoutingTable(result)
 }
@@ -695,7 +694,8 @@ func (cl *ClusterClient) NewDMap(name string, options ...DMapOption) (DMap, erro
 		}
 	}
 
-	return &ClusterDMap{name: name,
+	return &ClusterDMap{
+		name:          name,
 		config:        &dc,
 		newEntry:      dc.storageEntryImplementation,
 		client:        cl.client,

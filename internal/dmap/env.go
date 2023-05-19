@@ -32,6 +32,7 @@ type env struct {
 	timeout   time.Duration
 	kind      partitions.Kind
 	fragment  *fragment
+	function  string
 }
 
 func newEnv(ctx context.Context) *env {

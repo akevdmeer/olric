@@ -759,6 +759,45 @@ func ParseGetPutCommand(cmd redcon.Command) (*GetPut, error) {
 	return g, nil
 }
 
+type Function struct {
+	DMap     string
+	Key      string
+	Function string
+	Arg      []byte
+}
+
+func NewFunction(dmap string, key string, function string, arg []byte) *Function {
+	return &Function{
+		DMap:     dmap,
+		Key:      key,
+		Function: function,
+		Arg:      arg,
+	}
+}
+
+func (f *Function) Command(ctx context.Context) *redis.StringCmd {
+	var args []interface{}
+	args = append(args, DMap.Function)
+	args = append(args, f.DMap)
+	args = append(args, f.Key)
+	args = append(args, f.Function)
+	args = append(args, f.Arg)
+	return redis.NewStringCmd(ctx, args...)
+}
+
+func ParseFunctionCommand(cmd redcon.Command) (*Function, error) {
+	if len(cmd.Args) < 5 {
+		return nil, errWrongNumber(cmd.Args)
+	}
+
+	return NewFunction(
+		util.BytesToString(cmd.Args[1]), // DMap
+		util.BytesToString(cmd.Args[2]), // Key
+		util.BytesToString(cmd.Args[3]), // Function
+		cmd.Args[4],                     // Arg
+	), nil
+}
+
 type IncrByFloat struct {
 	DMap  string
 	Key   string

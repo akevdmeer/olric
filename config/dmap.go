@@ -22,6 +22,9 @@ import (
 // EvictionPolicy denotes eviction policy. Currently: LRU or NONE.
 type EvictionPolicy string
 
+// Function defines the signature of a custom function.
+type Function func(key string, currentState, arg []byte) (newState []byte, result []byte, err error)
+
 // Important note on DMap and DMaps structs:
 // Golang does not provide the typical notion of inheritance.
 // because of that I preferred to define the types explicitly.
@@ -64,6 +67,9 @@ type DMap struct {
 	// EvictionPolicy determines the eviction policy in use. It's NONE by default.
 	// Set as LRU to enable LRU eviction policy.
 	EvictionPolicy EvictionPolicy
+
+	// Function is useful to set custom functions per DMap instance.
+	Functions map[string]Function
 }
 
 // Sanitize sets default values to empty configuration variables, if it's possible.

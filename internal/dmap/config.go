@@ -30,6 +30,7 @@ type dmapConfig struct {
 	maxInuse        int
 	lruSamples      int
 	evictionPolicy  config.EvictionPolicy
+	functions       map[string]config.Function
 }
 
 func (c *dmapConfig) load(dc *config.DMaps, name string) error {
@@ -41,6 +42,7 @@ func (c *dmapConfig) load(dc *config.DMaps, name string) error {
 	c.lruSamples = dc.LRUSamples
 	c.evictionPolicy = dc.EvictionPolicy
 	c.engine = dc.Engine
+	c.functions = make(map[string]config.Function)
 
 	if dc.Custom != nil {
 		// config.DMap struct can be used for fine-grained control.
@@ -70,10 +72,13 @@ func (c *dmapConfig) load(dc *config.DMaps, name string) error {
 			if c.engine == nil {
 				c.engine = cs.Engine
 			}
+			if cs.Functions != nil {
+				c.functions = cs.Functions
+			}
 		}
 	}
 
-	//TODO: Create a new function to verify config.
+	// TODO: Create a new function to verify config.
 	if c.evictionPolicy == config.LRUEviction {
 		if c.maxInuse <= 0 && c.maxKeys <= 0 {
 			return fmt.Errorf("maxInuse or maxKeys have to be greater than zero")

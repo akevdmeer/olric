@@ -239,6 +239,15 @@ func (dm *EmbeddedDMap) Incr(ctx context.Context, key string, delta int) (int, e
 	return dm.dm.Incr(ctx, key, delta)
 }
 
+// Function runs the given function on the owner of the given key.
+func (dm *EmbeddedDMap) Function(ctx context.Context, key string, functionName string, arg []byte) ([]byte, error) {
+	value, err := dm.dm.Function(ctx, key, functionName, arg)
+	if err != nil {
+		return nil, convertDMapError(err)
+	}
+	return value, nil
+}
+
 // IncrByFloat atomically increments the key by delta. The return value is the new value after being incremented or an error.
 func (dm *EmbeddedDMap) IncrByFloat(ctx context.Context, key string, delta float64) (float64, error) {
 	return dm.dm.IncrByFloat(ctx, key, delta)
