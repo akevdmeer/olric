@@ -87,13 +87,12 @@ func (dm *DMap) functionOnCluster(f *env) ([]byte, error) {
 		timestamp: f.timestamp,
 		kind:      partitions.PRIMARY,
 		value:     newState,
+		putConfig: &PutConfig{},
 	}
 	if ttl != 0 {
 		p.timeout = time.Until(time.UnixMilli(ttl))
-		p.putConfig = &PutConfig{
-			HasPX: true,
-			PX:    time.Until(time.UnixMilli(ttl)),
-		}
+		p.putConfig.HasPX = true
+		p.putConfig.PX = time.Until(time.UnixMilli(ttl))
 	}
 	err = dm.putOnCluster(p)
 	if err != nil {
