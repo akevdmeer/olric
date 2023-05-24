@@ -23,7 +23,7 @@ func (s *Service) functionCommandHandler(conn redcon.Conn, cmd redcon.Command) {
 	e.key = functionCmd.Key
 	e.function = functionCmd.Function
 	e.value = functionCmd.Arg
-	latest, err := dm.function(e, functionCmd.Key, functionCmd.Function, functionCmd.Arg)
+	latest, err := dm.function(e)
 	if err != nil {
 		protocol.WriteError(conn, err)
 		return
