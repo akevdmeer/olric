@@ -103,6 +103,21 @@ func (s *Service) NewDMap(name string) (*DMap, error) {
 	return dm, nil
 }
 
+// DeleteDMap deletes the DMap instance from the local process
+// Use Destroy() to delete storage data as well.
+func (s *Service) DeleteDMap(name string) error {
+	s.Lock()
+	defer s.Unlock()
+
+	dmap, err := s.getDMap(name)
+	if err != nil {
+		return err
+	}
+
+	delete(s.dmaps, dmap.name)
+	return nil
+}
+
 // getOrCreate is a shortcut function to create a new DMap or get an already initialized DMap instance.
 func (s *Service) getOrCreateDMap(name string) (*DMap, error) {
 	dm, err := s.getDMap(name)
