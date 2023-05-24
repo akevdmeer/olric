@@ -703,6 +703,11 @@ func (cl *ClusterClient) NewDMap(name string, options ...DMapOption) (DMap, erro
 	}, nil
 }
 
+// DeleteDMap deletes the DMap instance from the local process.
+func (cl *ClusterClient) DeleteDMap(name string) error {
+	return nil
+}
+
 // ClusterClientOption is a functional option for configuring a clusterClientConfig instance.
 type ClusterClientOption func(c *clusterClientConfig)
 

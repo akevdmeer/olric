@@ -285,6 +285,9 @@ type Client interface {
 	// NewDMap returns a new DMap client with the given options.
 	NewDMap(name string, options ...DMapOption) (DMap, error)
 
+	// DeleteDMap deletes the DMap on the cluster.
+	DeleteDMap(name string) error
+
 	// NewPubSub returns a new PubSub client with the given options.
 	NewPubSub(options ...PubSubOption) (*PubSub, error)
 
