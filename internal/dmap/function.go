@@ -41,15 +41,6 @@ func (dm *DMap) functionOnCluster(ctx context.Context, dmap string, hkey uint64,
 		return nil, fmt.Errorf("function: %s is not registered", function)
 	}
 
-	atomicKey := dmap + key
-	dm.s.locker.Lock(atomicKey)
-	defer func() {
-		err := dm.s.locker.Unlock(atomicKey)
-		if err != nil {
-			dm.s.log.V(3).Printf("[ERROR] Failed to release the fine grained lock for key: %s on DMap: %s: %v", key, dmap, err)
-		}
-	}()
-
 	var currentState []byte
 	var ttl int64
 	entry, err := dm.getOnCluster(hkey, key)
