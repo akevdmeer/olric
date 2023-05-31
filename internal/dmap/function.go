@@ -7,38 +7,55 @@ import (
 	"time"
 
 	"github.com/buraksezer/olric/internal/cluster/partitions"
+	"github.com/buraksezer/olric/internal/protocol"
 )
 
 func (dm *DMap) Function(ctx context.Context, key string, function string, arg []byte) ([]byte, error) {
-	e := newEnv(ctx)
-	e.dmap = dm.name
-	e.key = key
-	e.function = function
-	e.value = arg
-	return dm.function(e)
-}
+	hkey := partitions.HKey(dm.name, key)
+	member := dm.s.primary.PartitionByHKey(hkey).Owner()
 
-func (dm *DMap) function(e *env) ([]byte, error) {
-	f, ok := dm.config.functions[e.function]
-	if !ok {
-		return nil, fmt.Errorf("function: %s is not registered", e.function)
+	// We are on the partition owner. So we can call the function directly.
+	if member.CompareByName(dm.s.rt.This()) {
+		return dm.functionOnCluster(dm.name, hkey, key, function, arg)
 	}
 
-	atomicKey := e.dmap + e.key
+	// Redirect to the partition owner.
+	cmd := protocol.NewFunction(dm.name, key, function, arg).Command(dm.s.ctx)
+	rc := dm.s.client.Get(member.String())
+	err := rc.Process(ctx, cmd)
+	if err != nil {
+		return nil, protocol.ConvertError(err)
+	}
+
+	value, err := cmd.Bytes()
+	if err != nil {
+		return nil, protocol.ConvertError(err)
+	}
+
+	return value, protocol.ConvertError(cmd.Err())
+}
+
+func (dm *DMap) functionOnCluster(dmap string, hkey uint64, key string, function string, arg []byte) ([]byte, error) {
+	f, ok := dm.config.functions[function]
+	if !ok {
+		return nil, fmt.Errorf("function: %s is not registered", function)
+	}
+
+	atomicKey := dmap + key
 	dm.s.locker.Lock(atomicKey)
 	defer func() {
 		err := dm.s.locker.Unlock(atomicKey)
 		if err != nil {
-			dm.s.log.V(3).Printf("[ERROR] Failed to release the fine grained lock for key: %s on DMap: %s: %v", e.key, e.dmap, err)
+			dm.s.log.V(3).Printf("[ERROR] Failed to release the fine grained lock for key: %s on DMap: %s: %v", key, dmap, err)
 		}
 	}()
 
 	var currentState []byte
 	var ttl int64
-	entry, err := dm.getOnCluster(e.hkey, e.key)
+	entry, err := dm.getOnCluster(hkey, key)
 	if err != nil {
 		if !errors.Is(err, ErrKeyNotFound) {
-			dm.s.log.V(3).Printf("[ERROR] Failed to get key: %s on DMap: %s: %v", e.key, e.dmap, err)
+			dm.s.log.V(3).Printf("[ERROR] Failed to get key: %s on DMap: %s: %v", key, dmap, err)
 			return nil, err
 		}
 	} else {
@@ -46,19 +63,18 @@ func (dm *DMap) function(e *env) ([]byte, error) {
 		ttl = entry.TTL()
 	}
 
-	newState, result, err := f(e.key, currentState, e.value)
+	newState, result, err := f(key, currentState, arg)
 	if err != nil {
-		dm.s.log.V(3).Printf("[ERROR] Failed to call function: %s on DMap: %s: %v", e.function, e.dmap, err)
+		dm.s.log.V(3).Printf("[ERROR] Failed to call function: %s on DMap: %s: %v", function, dmap, err)
 		return nil, err
 	}
 
-	// Put
 	p := &env{
-		function:  e.function,
+		function:  function,
 		dmap:      dm.name,
-		key:       e.key,
-		hkey:      e.hkey,
-		timestamp: e.timestamp,
+		key:       key,
+		hkey:      hkey,
+		timestamp: time.Now().UnixNano(),
 		kind:      partitions.PRIMARY,
 		value:     newState,
 		putConfig: &PutConfig{},

@@ -18,12 +18,7 @@ func (s *Service) functionCommandHandler(conn redcon.Conn, cmd redcon.Command) {
 		return
 	}
 
-	e := newEnv(s.ctx)
-	e.dmap = dm.name
-	e.key = functionCmd.Key
-	e.function = functionCmd.Function
-	e.value = functionCmd.Arg
-	latest, err := dm.function(e)
+	latest, err := dm.Function(s.ctx, functionCmd.Key, functionCmd.Function, functionCmd.Arg)
 	if err != nil {
 		protocol.WriteError(conn, err)
 		return
