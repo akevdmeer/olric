@@ -16,7 +16,7 @@ func (dm *DMap) Function(ctx context.Context, key string, function string, arg [
 
 	// We are on the partition owner. So we can call the function directly.
 	if member.CompareByName(dm.s.rt.This()) {
-		return dm.functionOnCluster(dm.name, hkey, key, function, arg)
+		return dm.functionOnCluster(ctx, dm.name, hkey, key, function, arg)
 	}
 
 	// Redirect to the partition owner.
@@ -35,7 +35,7 @@ func (dm *DMap) Function(ctx context.Context, key string, function string, arg [
 	return value, protocol.ConvertError(cmd.Err())
 }
 
-func (dm *DMap) functionOnCluster(dmap string, hkey uint64, key string, function string, arg []byte) ([]byte, error) {
+func (dm *DMap) functionOnCluster(ctx context.Context, dmap string, hkey uint64, key string, function string, arg []byte) ([]byte, error) {
 	f, ok := dm.config.functions[function]
 	if !ok {
 		return nil, fmt.Errorf("function: %s is not registered", function)
@@ -70,6 +70,7 @@ func (dm *DMap) functionOnCluster(dmap string, hkey uint64, key string, function
 	}
 
 	p := &env{
+		ctx:       ctx,
 		function:  function,
 		dmap:      dm.name,
 		key:       key,
