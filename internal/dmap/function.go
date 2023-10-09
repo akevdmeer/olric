@@ -42,7 +42,6 @@ func (dm *DMap) functionOnCluster(ctx context.Context, dmap string, hkey uint64,
 	}
 
 	var currentState []byte
-	var ttl int64
 	var err error
 
 	atomicKey := dmap + key
@@ -70,7 +69,6 @@ func (dm *DMap) functionOnCluster(ctx context.Context, dmap string, hkey uint64,
 
 	if entry != nil {
 		currentState = entry.Value()
-		ttl = entry.TTL()
 	}
 
 	newState, result, err := f(key, currentState, arg)
@@ -89,11 +87,6 @@ func (dm *DMap) functionOnCluster(ctx context.Context, dmap string, hkey uint64,
 		kind:      partitions.PRIMARY,
 		value:     newState,
 		putConfig: &PutConfig{},
-	}
-	if ttl != 0 {
-		p.timeout = time.Until(time.UnixMilli(ttl))
-		p.putConfig.HasPX = true
-		p.putConfig.PX = time.Until(time.UnixMilli(ttl))
 	}
 	err = dm.putOnCluster(p)
 	if err != nil {
