@@ -24,6 +24,10 @@ import (
 
 var ErrNilResponse = errors.New("storage entry is nil")
 
+func NewResponse(entry storage.Entry) *GetResponse {
+	return &GetResponse{entry: entry}
+}
+
 type GetResponse struct {
 	entry storage.Entry
 }
