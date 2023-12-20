@@ -150,6 +150,8 @@ func Match(s string) ScanOption {
 	}
 }
 
+type PutConfig = dmap.PutConfig
+
 // DMap defines methods to access and manipulate distributed maps.
 type DMap interface {
 	// Name exposes name of the DMap.
@@ -158,7 +160,7 @@ type DMap interface {
 	// Put sets the value for the given key. It overwrites any previous value for
 	// that key, and it's thread-safe. The key has to be a string. value type is arbitrary.
 	// It is safe to modify the contents of the arguments after Put returns but not before.
-	Put(ctx context.Context, key string, value interface{}, options ...PutOption) error
+	Put(ctx context.Context, key string, value interface{}, options ...PutOption) (*PutConfig, error)
 
 	// Get gets the value for the given key. It returns ErrKeyNotFound if the DB
 	// does not contain the key. It's thread-safe. It is safe to modify the contents
