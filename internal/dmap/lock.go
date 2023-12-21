@@ -149,7 +149,7 @@ func (dm *DMap) Lock(ctx context.Context, key string, timeout, deadline time.Dur
 		pc.PX = timeout
 	}
 
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.putConfig = &pc
 	e.dmap = dm.name
 	e.key = key

@@ -62,7 +62,7 @@ func (s *Service) getEntryCommandHandler(conn redcon.Conn, cmd redcon.Command) {
 		kind = partitions.BACKUP
 	}
 
-	e := newEnv(s.ctx)
+	e := newEnv(s.ctx, 0)
 	e.dmap = getEntryCmd.DMap
 	e.key = getEntryCmd.Key
 	e.hkey = partitions.HKey(getEntryCmd.DMap, getEntryCmd.Key)

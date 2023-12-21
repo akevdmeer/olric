@@ -25,7 +25,7 @@ func (dm *DMap) Expire(ctx context.Context, key string, timeout time.Duration) e
 	pc := &PutConfig{
 		OnlyUpdateTTL: true,
 	}
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.putConfig = pc
 	e.dmap = dm.name
 	e.key = key
