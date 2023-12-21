@@ -35,14 +35,19 @@ type env struct {
 	function  string
 }
 
-func newEnv(ctx context.Context) *env {
+func newEnv(ctx context.Context, timestamp int64) *env {
 	if ctx == nil {
 		ctx = context.Background()
 	}
+
+	if timestamp == 0 {
+		timestamp = time.Now().UnixNano()
+	}
+
 	return &env{
 		ctx:       ctx,
 		putConfig: &PutConfig{},
-		timestamp: time.Now().UnixNano(),
+		timestamp: timestamp,
 		kind:      partitions.PRIMARY,
 	}
 }

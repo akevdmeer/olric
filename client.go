@@ -68,6 +68,14 @@ type LockContext interface {
 // PutOption is a function for define options to control behavior of the Put command.
 type PutOption func(*dmap.PutConfig)
 
+// TS sets the specified timestamp of the entry, in nanoseconds.
+func TS(ts int64) PutOption {
+	return func(cfg *dmap.PutConfig) {
+		cfg.HasTimestamp = true
+		cfg.Timestamp = ts
+	}
+}
+
 // EX sets the specified expire time, in seconds.
 func EX(ex time.Duration) PutOption {
 	return func(cfg *dmap.PutConfig) {

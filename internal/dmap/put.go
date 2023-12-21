@@ -392,6 +392,8 @@ type PutConfig struct {
 	HasNX         bool
 	HasXX         bool
 	OnlyUpdateTTL bool
+	HasTimestamp  bool
+	Timestamp     int64
 }
 
 // Put sets the value for the given key. It overwrites any previous value
@@ -411,11 +413,18 @@ func (dm *DMap) Put(ctx context.Context, key string, value interface{}, cfg *Put
 	if cfg == nil {
 		cfg = &PutConfig{}
 	}
-	e := newEnv(ctx)
+
+	e := newEnv(ctx, cfg.Timestamp)
 	e.putConfig = cfg
 	e.dmap = dm.name
 	e.key = key
 	e.value = make([]byte, valueBuf.Len())
+
+	// If no timestamp has been provided in PutOption, we store timestamp from the env.
+	if !cfg.HasTimestamp {
+		cfg.Timestamp = e.timestamp
+	}
+
 	copy(e.value[:], valueBuf.Bytes())
 	return dm.put(e)
 }
