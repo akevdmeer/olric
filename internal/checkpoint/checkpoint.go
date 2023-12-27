@@ -30,5 +30,5 @@ func Pass() {
 }
 
 func AllPassed() bool {
-	return atomic.LoadInt32(&passed) == required
+	return atomic.LoadInt32(&passed) == atomic.LoadInt32(&required)
 }
