@@ -321,6 +321,15 @@ func (e *EmbeddedClient) NewDMap(name string, options ...DMapOption) (DMap, erro
 	}, nil
 }
 
+// DeleteDMap deletes the DMap instance from the local process.
+func (e *EmbeddedClient) DeleteDMap(name string) error {
+	err := e.db.dmap.DeleteDMap(name)
+	if err != nil {
+		return convertDMapError(err)
+	}
+	return nil
+}
+
 // Stats exposes some useful metrics to monitor an Olric node.
 func (e *EmbeddedClient) Stats(ctx context.Context, address string, options ...StatsOption) (stats.Stats, error) {
 	if err := e.db.isOperable(); err != nil {

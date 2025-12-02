@@ -95,7 +95,7 @@ func (dm *DMap) atomicIncrDecr(cmd string, e *env, delta int) (int, error) {
 
 // Incr atomically increments key by delta. The return value is the new value after being incremented or an error.
 func (dm *DMap) Incr(ctx context.Context, key string, delta int) (int, error) {
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.dmap = dm.name
 	e.key = key
 	return dm.atomicIncrDecr(protocol.DMap.Incr, e, delta)
@@ -103,7 +103,7 @@ func (dm *DMap) Incr(ctx context.Context, key string, delta int) (int, error) {
 
 // Decr atomically decrements key by delta. The return value is the new value after being decremented or an error.
 func (dm *DMap) Decr(ctx context.Context, key string, delta int) (int, error) {
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.dmap = dm.name
 	e.key = key
 	return dm.atomicIncrDecr(protocol.DMap.Decr, e, delta)
@@ -152,7 +152,7 @@ func (dm *DMap) GetPut(ctx context.Context, key string, value interface{}) (stor
 		return nil, err
 	}
 
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.dmap = dm.name
 	e.key = key
 	e.value = make([]byte, valueBuf.Len())
@@ -221,7 +221,7 @@ func (dm *DMap) atomicIncrByFloat(e *env, delta float64) (float64, error) {
 
 // IncrByFloat atomically increments key by delta. The return value is the new value after being incremented or an error.
 func (dm *DMap) IncrByFloat(ctx context.Context, key string, delta float64) (float64, error) {
-	e := newEnv(ctx)
+	e := newEnv(ctx, 0)
 	e.dmap = dm.name
 	e.key = key
 	return dm.atomicIncrByFloat(e, delta)

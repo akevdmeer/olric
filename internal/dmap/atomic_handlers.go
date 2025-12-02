@@ -27,7 +27,7 @@ func (s *Service) incrDecrCommon(cmd, dmap, key string, delta int) (int, error) 
 		return 0, err
 	}
 
-	e := newEnv(s.ctx)
+	e := newEnv(s.ctx, 0)
 	e.dmap = dm.name
 	e.key = key
 	return dm.atomicIncrDecr(cmd, e, delta)
@@ -73,7 +73,7 @@ func (s *Service) getPutCommandHandler(conn redcon.Conn, cmd redcon.Command) {
 		return
 	}
 
-	e := newEnv(s.ctx)
+	e := newEnv(s.ctx, 0)
 	e.dmap = getPutCmd.DMap
 	e.key = getPutCmd.Key
 	e.value = getPutCmd.Value
@@ -109,7 +109,7 @@ func (s *Service) incrByFloatCommandHandler(conn redcon.Conn, cmd redcon.Command
 		return
 	}
 
-	e := newEnv(s.ctx)
+	e := newEnv(s.ctx, 0)
 	e.dmap = dm.name
 	e.key = incrCmd.Key
 	latest, err := dm.atomicIncrByFloat(e, incrCmd.Delta)
