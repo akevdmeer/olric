@@ -309,7 +309,7 @@ func (dm *ClusterDMap) IncrByFloat(ctx context.Context, key string, delta float6
 		return 0, processProtocolError(err)
 	}
 
-	res, err := cmd.Float64()
+	res, err := cmd.Result()
 	if err != nil {
 		return 0, processProtocolError(err)
 	}
