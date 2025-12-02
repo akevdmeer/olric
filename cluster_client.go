@@ -308,9 +308,30 @@ func (dm *ClusterDMap) IncrByFloat(ctx context.Context, key string, delta float6
 	if err != nil {
 		return 0, processProtocolError(err)
 	}
-	res, err := cmd.Result()
+
+	res, err := cmd.Float64()
 	if err != nil {
-		return 0, processProtocolError(cmd.Err())
+		return 0, processProtocolError(err)
+	}
+	return res, nil
+}
+
+// Function runs the given function on the owner of the given key.
+func (dm *ClusterDMap) Function(ctx context.Context, key string, functionName string, arg []byte) ([]byte, error) {
+	rc, err := dm.clusterClient.smartPick(dm.name, key)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := protocol.NewFunction(dm.name, key, functionName, arg).Command(ctx)
+	err = rc.Process(ctx, cmd)
+	if err != nil {
+		return nil, processProtocolError(err)
+	}
+
+	res, err := cmd.Bytes()
+	if err != nil {
+		return nil, processProtocolError(err)
 	}
 	return res, nil
 }
