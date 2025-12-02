@@ -196,6 +196,9 @@ type DMap interface {
 	// after being incremented or an error.
 	IncrByFloat(ctx context.Context, key string, delta float64) (float64, error)
 
+	// Function runs the given function on the owner of the given key.
+	Function(ctx context.Context, key string, functionName string, arg []byte) ([]byte, error)
+
 	// Expire updates the expiry for the given key. It returns ErrKeyNotFound if
 	// the DB does not contain the key. It's thread-safe.
 	Expire(ctx context.Context, key string, timeout time.Duration) error
